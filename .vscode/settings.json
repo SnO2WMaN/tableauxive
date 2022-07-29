@@ -4,6 +4,7 @@
   "files.exclude": {
     "**/.direnv": true,
     "**/.vercel": true,
+    "**/.next": true,
     "**/node_modules": true
   },
   "customLocalFormatters.formatters": [

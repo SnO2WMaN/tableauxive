@@ -4,9 +4,12 @@
 result
 target
 
+# misc
+.DS_Store
+*.pem
+
 # env
-.env
-.env.*.local
+.env*.local
 
 # dependency
 node_modules/
@@ -19,3 +22,8 @@ node_modules/
 
 # Vercel
 .vercel
+
+# Next.js
+.next/
+out/
+build/

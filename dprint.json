@@ -17,7 +17,8 @@
   "excludes": [
     "**/.direnv",
     "**/node_modules",
-    "**/*-lock.json"
+    "**/*-lock.json",
+    "**/next-env.d.ts"
   ],
   "plugins": [
     "https://plugins.dprint.dev/typescript-0.69.5.wasm",
