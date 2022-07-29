@@ -3,3 +3,19 @@
 
 result
 target
+
+# env
+.env
+.env.*.local
+
+# dependency
+node_modules/
+
+# cache
+.eslintcache
+
+# log
+.pnpm-debug.log
+
+# Vercel
+.vercel

@@ -1,0 +1,38 @@
+{
+  "name": "sanime2",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "predev": "run-s -nl predev:*",
+    "predev:msw": "msw init public --save",
+    "build": "vite build",
+    "lint": "run-s lint:eslint",
+    "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lintfix:eslint": "npm run lint:eslint --fix --cache"
+  },
+  "engines": {
+    "node": "^16"
+  },
+  "dependencies": {
+    "chrome-aws-lambda": "10.1.0",
+    "puppeteer-core": "10.1.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "1.0.1",
+    "@types/node": "18.0.1",
+    "@typescript-eslint/eslint-plugin": "5.30.4",
+    "@typescript-eslint/parser": "5.30.4",
+    "@vercel/node": "^2.5.1",
+    "eslint": "8.19.0",
+    "eslint-plugin-eslint-comments": "3.2.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-react": "7.30.1",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-simple-import-sort": "7.0.0",
+    "eslint-plugin-unused-imports": "2.0.0",
+    "npm-run-all": "4.1.5",
+    "puppeteer": "^15.5.0",
+    "typescript": "4.7.4",
+    "vercel": "^27.1.5"
+  }
+}
