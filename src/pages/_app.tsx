@@ -1,3 +1,5 @@
+import "~/styles/main.css";
+
 import { AppProps } from "next/app";
 import React from "react";
 

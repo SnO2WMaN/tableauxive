@@ -6,7 +6,7 @@ export const handler: NextApiHandler = async (req, res) => {
     executablePath: await chromium.executablePath,
     args: chromium.args,
     headless: true,
-    defaultViewport: { ...chromium.defaultViewport, width: 568, height: 164 },
+    defaultViewport: { ...chromium.defaultViewport },
   });
   const page = await browser.newPage();
   await page.goto("https://example.com", { waitUntil: "networkidle0" });
