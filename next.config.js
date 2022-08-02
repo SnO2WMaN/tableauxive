@@ -6,9 +6,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   pageExtensions: [
-    "api.ts",
     "page.tsx",
     "page.ts",
+    "api.ts",
+    "api.tsx",
   ],
 };
 module.exports = nextConfig;
