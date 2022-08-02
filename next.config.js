@@ -5,5 +5,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  pageExtensions: [
+    "api.ts",
+    "page.tsx",
+    "page.ts",
+  ],
 };
 module.exports = nextConfig;
