@@ -1,8 +1,8 @@
 import { css } from "@emotion/css";
 import ky from "ky";
+import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import React, { Suspense, useMemo } from "react";
+import React, { useMemo } from "react";
 import useSWR from "swr";
 
 import { Branch } from "~/components/Branch";
@@ -35,19 +35,31 @@ export const Tableau: React.FC = () => {
   );
 };
 
-const Page: React.FC = () => {
-  const router = useRouter();
-  const { formula } = router.query;
+export type PageProps = { branch: BranchType };
+export const getServerSideProps: GetServerSideProps<PageProps> = async ({ query }) => {
+  const formula = query["formula"];
+  if (!formula || Array.isArray(formula)) throw new Error("Formula is missing");
 
+  const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
+  apiUrl.searchParams.set("formula", formula);
+
+  const apiRes = await ky.get(apiUrl.toString());
+  if (apiRes.status === 400) throw new Error("Invalid formula");
+  if (200 < apiRes.status) throw new Error("Something wrong");
+
+  const branch = await apiRes.json<BranchType>();
+  return { props: { branch } };
+};
+
+const Page: NextPage<PageProps> = (props) => {
   return (
     <>
       <Head>
         <title>Tableauxive</title>
       </Head>
-      <span>{formula}</span>
-      <Suspense fallback={<div>loading</div>}>
-        <Tableau></Tableau>
-      </Suspense>
+      <div className={css({ display: "flex", justifyContent: "center" })}>
+        <Branch branch={props.branch} />
+      </div>
     </>
   );
 };
