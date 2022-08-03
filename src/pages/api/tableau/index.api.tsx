@@ -10,7 +10,7 @@ import { Branch } from "~/components/Branch";
 import { Branch as BranchType } from "~/tableau/result";
 import pkgjson from "~~/package.json";
 
-export const HtmlTemplate: React.FC<{ branch: BranchType }> = ({ branch }) => (
+const HtmlTemplate: React.FC<{ branch: BranchType }> = ({ branch }) => (
   <html style={{ height: "100%" }}>
     <head>
       <link
