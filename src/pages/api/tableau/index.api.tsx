@@ -50,7 +50,7 @@ const handler: NextApiHandler = async (req, res) => {
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
   apiUrl.searchParams.append("formula", formula);
-  const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000 });
+  const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
   if (apiRes.status === 400) {
     res.status(400).end();
     return;
