@@ -49,7 +49,7 @@ const handler: NextApiHandler = async (req, res) => {
   const height = heightRaw ? parseInt(heightRaw) : 640;
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
-  apiUrl.searchParams.append("formula", formula);
+  apiUrl.searchParams.set("formula", formula);
   const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
   if (apiRes.status === 400) {
     res.status(400).end();

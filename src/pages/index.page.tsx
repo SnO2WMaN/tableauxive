@@ -2,18 +2,19 @@ import { css } from "@emotion/css";
 import ky from "ky";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { Suspense } from "react";
+import React, { Suspense, useMemo } from "react";
 import useSWR from "swr";
 
 import { Branch } from "~/components/Branch";
 import { Branch as BranchType } from "~/tableau/result";
 
 export const Tableau: React.FC = () => {
-  const { data } = useSWR(
-    `http://localhost:3000/api/solve`,
-    (url) => ky.get(url).json<BranchType>(),
-    { suspense: true },
-  );
+  const solveUrl = useMemo(() => {
+    const url = new URL("/api/solve", process.env.NEXT_PUBLIC_VERCEL_URL);
+    url.searchParams.set("formula", "P∧(P→Q)→Q");
+    return url.toString();
+  }, []);
+  const { data } = useSWR(solveUrl, (url) => ky.get(url).json<BranchType>(), { suspense: true });
 
   return (
     <div>
