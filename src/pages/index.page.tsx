@@ -10,7 +10,12 @@ import { Branch as BranchType } from "~/tableau/result";
 
 export const Tableau: React.FC = () => {
   const solveUrl = useMemo(() => {
-    const url = new URL("/api/solve", process.env.NEXT_PUBLIC_VERCEL_URL);
+    const url = new URL(
+      "/api/solve",
+      process.env.NEXT_PUBLIC_VERCEL_URL?.startsWith("localhost")
+        ? `http://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+        : `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`,
+    );
     url.searchParams.set("formula", "P∧(P→Q)→Q");
     return url.toString();
   }, []);
