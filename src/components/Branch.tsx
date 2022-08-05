@@ -1,28 +1,8 @@
 import katex from "katex";
 import React from "react";
 
-import { BranchType, PropFormula } from "~/types";
-
-export const MkTexExp = (f: PropFormula): string => {
-  switch (f[0]) {
-    case "PROP":
-      return String.raw`${f[1]}`;
-    case "TOP":
-      return String.raw`\top`;
-    case "BOT":
-      return String.raw`\bot`;
-    case "NOT":
-      return String.raw`\lnot ${MkTexExp(f[1])}`;
-    case "OR":
-      return String.raw`\left( ${MkTexExp(f[1])} \lor ${MkTexExp(f[2])} \right)`;
-    case "AND":
-      return String.raw`\left( ${MkTexExp(f[1])} \land ${MkTexExp(f[2])} \right)`;
-    case "IMP":
-      return String.raw`\left( ${MkTexExp(f[1])} \to ${MkTexExp(f[2])} \right)`;
-    case "EQ":
-      return String.raw`\left( ${MkTexExp(f[1])} \leftrightarrow ${MkTexExp(f[2])} \right)`;
-  }
-};
+import { BranchType } from "~/types";
+import { formulaToTeX } from "~/utils/formulaToTex";
 
 export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
   return (
@@ -47,14 +27,14 @@ export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
           <li key={i} style={{ display: "flex", alignItems: "center" }}>
             <span
               style={{ flexGrow: 1, textAlign: "center", padding: "0 8px" }}
-              dangerouslySetInnerHTML={{ __html: katex.renderToString(MkTexExp(formula), { displayMode: false }) }}
+              dangerouslySetInnerHTML={{ __html: katex.renderToString(formulaToTeX(formula), { displayMode: false }) }}
             />
           </li>
         ))}
       </ol>
       {(branch.junction) && (
         <>
-          <div style={{ gridColumn: "span 2", height: "24px" }}>
+          <div style={{ gridColumn: "span 2", height: "16px" }}>
             <svg style={{ width: "100%", height: "100%" }} xmlns="http://www.w3.org/2000/svg">
               <line x1="25%" y1="100%" x2="50%" y2="0%" stroke="black" />
               <line x1="50%" y1="0%" x2="75%" y2="100%" stroke="black" />

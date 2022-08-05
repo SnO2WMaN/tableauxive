@@ -7,8 +7,9 @@ import ky from "ky";
 import { NextApiHandler } from "next";
 import ReactDOMServer from "react-dom/server";
 
-import { Branch, MkTexExp } from "~/components/Branch";
+import { Branch } from "~/components/Branch";
 import { BranchType, PropFormula, SolveApiResult } from "~/types";
+import { formulaToTeX } from "~/utils/formulaToTex";
 import pkgjson from "~~/package.json";
 
 const HtmlTemplate: React.FC<{ formula: PropFormula; valid: boolean; branch: BranchType }> = (
@@ -27,8 +28,9 @@ const HtmlTemplate: React.FC<{ formula: PropFormula; valid: boolean; branch: Bra
     </head>
     <body style={{ padding: "16px 16px", backgroundColor: "white" }}>
       <p style={{ width: "100%", textAlign: "left" }}>
-        <span dangerouslySetInnerHTML={{ __html: katex.renderToString(MkTexExp(formula), { displayMode: false }) }} />
-        {" "}
+        <span
+          dangerouslySetInnerHTML={{ __html: katex.renderToString(formulaToTeX(formula), { displayMode: false }) }}
+        />{" "}
         is {validity ? <span>valid</span> : <span>invalid</span>}
         .
       </p>

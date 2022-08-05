@@ -4,8 +4,9 @@ import ky from "ky";
 import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 
-import { Branch, MkTexExp } from "~/components/Branch";
+import { Branch } from "~/components/Branch";
 import { BranchType, PropFormula, SolveApiResult } from "~/types";
+import { formulaToTeX } from "~/utils/formulaToTex";
 
 export type PageProps =
   | { result: null }
@@ -38,7 +39,7 @@ const Page: NextPage<PageProps> = (props) => {
           <p className={css({ textAlign: "center" })}>
             <span
               dangerouslySetInnerHTML={{
-                __html: katex.renderToString(MkTexExp(props.result.formula), { displayMode: false }),
+                __html: katex.renderToString(formulaToTeX(props.result.formula), { displayMode: false }),
               }}
             >
             </span>{" "}
