@@ -2,15 +2,18 @@
 /* eslint-disable @next/next/no-head-element */
 
 import chromium from "chrome-aws-lambda";
+import katex from "katex";
 import ky from "ky";
 import { NextApiHandler } from "next";
 import ReactDOMServer from "react-dom/server";
 
-import { Branch } from "~/components/Branch";
-import { Branch as BranchType } from "~/tableau/result";
+import { Branch, MkTexExp } from "~/components/Branch";
+import { BranchType, PropFormula, SolveApiResult } from "~/types";
 import pkgjson from "~~/package.json";
 
-const HtmlTemplate: React.FC<{ branch: BranchType }> = ({ branch }) => (
+const HtmlTemplate: React.FC<{ formula: PropFormula; valid: boolean; branch: BranchType }> = (
+  { branch, formula, valid: validity },
+) => (
   <html style={{ height: "100%" }}>
     <head>
       <link
@@ -22,8 +25,21 @@ const HtmlTemplate: React.FC<{ branch: BranchType }> = ({ branch }) => (
         href={`https://cdn.jsdelivr.net/npm/katex@${pkgjson.dependencies["katex"]}/dist/katex.min.css`}
       />
     </head>
-    <body>
-      <div style={{ padding: "16px 16px" }}>
+    <body style={{ padding: "16px 16px", backgroundColor: "white" }}>
+      <p style={{ width: "100%", textAlign: "left" }}>
+        <span dangerouslySetInnerHTML={{ __html: katex.renderToString(MkTexExp(formula), { displayMode: false }) }} />
+        {" "}
+        is {validity ? <span>valid</span> : <span>invalid</span>}
+        .
+      </p>
+      <div
+        style={{
+          marginBlockStart: "24px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "start",
+        }}
+      >
         <Branch branch={branch} />
       </div>
     </body>
@@ -31,25 +47,25 @@ const HtmlTemplate: React.FC<{ branch: BranchType }> = ({ branch }) => (
 );
 
 const handler: NextApiHandler = async (req, res) => {
-  const { width: widthRaw, height: heightRaw, formula } = req.query;
-  if (!formula || Array.isArray(formula)) {
+  const { width: reqWidth, height: reqHeight, formula: reqFormula } = req.query;
+  if (!reqFormula || Array.isArray(reqFormula)) {
     res.status(400).end();
     return;
   }
-  if (widthRaw && (Array.isArray(widthRaw) || parseInt(widthRaw) === NaN)) {
+  if (reqWidth && (Array.isArray(reqWidth) || parseInt(reqWidth) === NaN)) {
     res.status(400).end();
     return;
   }
-  if (heightRaw && (Array.isArray(heightRaw) || parseInt(heightRaw) === NaN)) {
+  if (reqHeight && (Array.isArray(reqHeight) || parseInt(reqHeight) === NaN)) {
     res.status(400).end();
     return;
   }
 
-  const width = widthRaw ? parseInt(widthRaw) : 900;
-  const height = heightRaw ? parseInt(heightRaw) : 640;
+  const width = reqWidth ? parseInt(reqWidth) : 900;
+  const height = reqHeight ? parseInt(reqHeight) : 640;
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
-  apiUrl.searchParams.set("formula", formula);
+  apiUrl.searchParams.set("formula", reqFormula);
   const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
   if (apiRes.status === 400) {
     res.status(400).end();
@@ -58,19 +74,16 @@ const handler: NextApiHandler = async (req, res) => {
     res.status(500).end();
     return;
   }
-  const json = await apiRes.json<BranchType>();
+  const { branch, formula, valid } = await apiRes.json<SolveApiResult>();
 
   const browser = await chromium.puppeteer.launch({
     executablePath: await chromium.executablePath,
     args: chromium.args,
     headless: true,
-    defaultViewport: {
-      width,
-      height,
-    },
+    defaultViewport: { width, height },
   });
   const page = await browser.newPage();
-  const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={json} />);
+  const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
   await page.setContent(html, { waitUntil: "networkidle0" });
   const image = await page.screenshot({ type: "png" });
 

@@ -1,54 +1,30 @@
 import { css } from "@emotion/css";
+import katex from "katex";
 import ky from "ky";
 import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import React, { useMemo } from "react";
-import useSWR from "swr";
 
-import { Branch } from "~/components/Branch";
-import { Branch as BranchType } from "~/tableau/result";
+import { Branch, MkTexExp } from "~/components/Branch";
+import { BranchType, PropFormula, SolveApiResult } from "~/types";
 
-export const Tableau: React.FC = () => {
-  const solveUrl = useMemo(() => {
-    const url = new URL(
-      "/api/solve",
-      process.env.NEXT_PUBLIC_VERCEL_URL?.startsWith("localhost")
-        ? `http://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-        : `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`,
-    );
-    url.searchParams.set("formula", "P∧(P→Q)→Q");
-    return url.toString();
-  }, []);
-  const { data } = useSWR(solveUrl, (url) => ky.get(url).json<BranchType>(), { suspense: true });
-
-  return (
-    <div>
-      <div className={css({ display: "flex", justifyContent: "center" })}>
-        <Branch
-          branch={
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            data!
-          }
-        />
-      </div>
-    </div>
-  );
-};
-
-export type PageProps = { branch: BranchType };
+export type PageProps =
+  | { result: null }
+  | { result: { formula: PropFormula; branch: BranchType; valid: boolean } };
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({ query }) => {
-  const formula = query["formula"];
-  if (!formula || Array.isArray(formula)) throw new Error("Formula is missing");
+  const reqFormula = query["formula"];
+  if (!reqFormula || Array.isArray(reqFormula)) {
+    return { props: { result: null } };
+  }
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
-  apiUrl.searchParams.set("formula", formula);
+  apiUrl.searchParams.set("formula", reqFormula);
 
   const apiRes = await ky.get(apiUrl.toString());
   if (apiRes.status === 400) throw new Error("Invalid formula");
   if (200 < apiRes.status) throw new Error("Something wrong");
 
-  const branch = await apiRes.json<BranchType>();
-  return { props: { branch } };
+  const { formula, branch, valid } = await apiRes.json<SolveApiResult>();
+  return { props: { result: { formula, branch, valid } } };
 };
 
 const Page: NextPage<PageProps> = (props) => {
@@ -57,9 +33,23 @@ const Page: NextPage<PageProps> = (props) => {
       <Head>
         <title>Tableauxive</title>
       </Head>
-      <div className={css({ display: "flex", justifyContent: "center" })}>
-        <Branch branch={props.branch} />
-      </div>
+      {props.result && (
+        <>
+          <p className={css({ textAlign: "center" })}>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: katex.renderToString(MkTexExp(props.result.formula), { displayMode: false }),
+              }}
+            >
+            </span>{" "}
+            is{"  "}{props.result.valid ? <span>valid</span> : <span>invalid</span>}
+            .
+          </p>
+          <div className={css({ marginBlockStart: "24px", display: "flex", justifyContent: "center" })}>
+            <Branch branch={props.result.branch} />
+          </div>
+        </>
+      )}
     </>
   );
 };

@@ -1,22 +1,26 @@
 import katex from "katex";
 import React from "react";
 
-import { Branch as BranchType, PropFormula } from "~/tableau/result";
+import { BranchType, PropFormula } from "~/types";
 
 export const MkTexExp = (f: PropFormula): string => {
-  switch (f.type) {
+  switch (f[0]) {
     case "PROP":
-      return String.raw`${f.id}`;
+      return String.raw`${f[1]}`;
+    case "TOP":
+      return String.raw`\top`;
+    case "BOT":
+      return String.raw`\bot`;
     case "NOT":
-      return String.raw`\lnot ${MkTexExp(f.in)}`;
+      return String.raw`\lnot ${MkTexExp(f[1])}`;
     case "OR":
-      return String.raw`\left( ${MkTexExp(f.left)} \lor ${MkTexExp(f.right)} \right)`;
+      return String.raw`\left( ${MkTexExp(f[1])} \lor ${MkTexExp(f[2])} \right)`;
     case "AND":
-      return String.raw`\left( ${MkTexExp(f.left)} \land ${MkTexExp(f.right)} \right)`;
-    case "IMPLICT":
-      return String.raw`\left( ${MkTexExp(f.left)} \to ${MkTexExp(f.right)} \right)`;
+      return String.raw`\left( ${MkTexExp(f[1])} \land ${MkTexExp(f[2])} \right)`;
+    case "IMP":
+      return String.raw`\left( ${MkTexExp(f[1])} \to ${MkTexExp(f[2])} \right)`;
     case "EQ":
-      return String.raw`\left( ${MkTexExp(f.left)} \leftrightarrow ${MkTexExp(f.right)} \right)`;
+      return String.raw`\left( ${MkTexExp(f[1])} \leftrightarrow ${MkTexExp(f[2])} \right)`;
   }
 };
 
@@ -28,6 +32,7 @@ export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
         gridTemplateColumns: "repeat(2, 1fr)",
         columnGap: "24px",
         rowGap: "8px",
+        alignItems: "start",
       }}
     >
       <ol
@@ -47,17 +52,7 @@ export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
           </li>
         ))}
       </ol>
-      {branch.valid === true && (
-        <div style={{ gridColumn: "span 2", textAlign: "center" }}>
-          <span dangerouslySetInnerHTML={{ __html: katex.renderToString(String.raw`\top`, { displayMode: false }) }} />
-        </div>
-      )}
-      {branch.valid === false && (
-        <div style={{ gridColumn: "span 2", textAlign: "center" }}>
-          <span dangerouslySetInnerHTML={{ __html: katex.renderToString(String.raw`\bot`, { displayMode: false }) }} />
-        </div>
-      )}
-      {(branch.left && branch.right) && (
+      {(branch.junction) && (
         <>
           <div style={{ gridColumn: "span 2", height: "24px" }}>
             <svg style={{ width: "100%", height: "100%" }} xmlns="http://www.w3.org/2000/svg">
@@ -65,8 +60,8 @@ export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
               <line x1="50%" y1="0%" x2="75%" y2="100%" stroke="black" />
             </svg>
           </div>
-          <Branch branch={branch.left}></Branch>
-          <Branch branch={branch.right}></Branch>
+          <Branch branch={branch.junction[0]}></Branch>
+          <Branch branch={branch.junction[1]}></Branch>
         </>
       )}
     </div>
