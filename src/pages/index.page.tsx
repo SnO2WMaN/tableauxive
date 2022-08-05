@@ -34,23 +34,25 @@ const Page: NextPage<PageProps> = (props) => {
       <Head>
         <title>Tableauxive</title>
       </Head>
-      {props.result && (
-        <>
-          <p className={css({ textAlign: "center" })}>
-            <span
-              dangerouslySetInnerHTML={{
-                __html: katex.renderToString(formulaToTeX(props.result.formula), { displayMode: false }),
-              }}
-            >
-            </span>{" "}
-            is{"  "}{props.result.valid ? <span>valid</span> : <span>invalid</span>}
-            .
-          </p>
-          <div className={css({ marginBlockStart: "24px", display: "flex", justifyContent: "center" })}>
-            <Branch branch={props.result.branch} />
-          </div>
-        </>
-      )}
+      <div className={css({ padding: "16px 24px" })}>
+        {props.result && (
+          <>
+            <p className={css({ textAlign: "left" })}>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: katex.renderToString(formulaToTeX(props.result.formula), { displayMode: false }),
+                }}
+              >
+              </span>{" "}
+              is{"  "}{props.result.valid ? <span>valid</span> : <span>invalid</span>}
+              .
+            </p>
+            <div className={css({ marginBlockStart: "24px", display: "flex", justifyContent: "center" })}>
+              <Branch branch={props.result.branch} />
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 };
