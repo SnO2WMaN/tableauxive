@@ -1,8 +1,11 @@
 import chromium from "chrome-aws-lambda";
 import ky from "ky";
 import { NextApiHandler } from "next";
+import ReactDOMServer from "react-dom/server";
 
 import { SolveApiResult } from "~/types";
+
+import { HtmlTemplate } from "./HtmlTemplate";
 
 const handler: NextApiHandler = async (req, res) => {
   const { width: reqWidth, height: reqHeight, formula: reqFormula } = req.query;
@@ -44,7 +47,7 @@ const handler: NextApiHandler = async (req, res) => {
       },
     });
     const page = await browser.newPage();
-    // const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
+    const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
     await page.goto("https://example.com", { waitUntil: "networkidle0" });
     // await page.goto;
     const image = await page.screenshot({ type: "png" });
