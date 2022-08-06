@@ -82,7 +82,8 @@ const handler: NextApiHandler = async (req, res) => {
     executablePath: await chromium.executablePath,
     args: chromium.args,
     headless: true,
-    defaultViewport: { width, height },
+    ignoreDefaultArgs: ["--disable-extensions"],
+    defaultViewport: { ...chromium.defaultViewport, width, height },
   });
   const page = await browser.newPage();
   const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
