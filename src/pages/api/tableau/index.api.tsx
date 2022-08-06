@@ -1,32 +1,35 @@
 import chromium from "chrome-aws-lambda";
+import ky from "ky";
 import { NextApiHandler } from "next";
 
+import { SolveApiResult } from "~/types";
+
 const handler: NextApiHandler = async (req, res) => {
-  // const { width: reqWidth, height: reqHeight, formula: reqFormula } = req.query;
-  // if (!reqFormula || Array.isArray(reqFormula)) {
-  //   res.status(400).end();
-  //   return;
-  // }
-  // if (reqWidth && (Array.isArray(reqWidth) || parseInt(reqWidth) === NaN)) {
-  //   res.status(400).end();
-  //   return;
-  // }
-  // if (reqHeight && (Array.isArray(reqHeight) || parseInt(reqHeight) === NaN)) {
-  //   res.status(400).end();
-  //   return;
-  // }
-  //
-  // const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
-  // apiUrl.searchParams.set("formula", reqFormula);
-  // const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
-  // if (apiRes.status === 400) {
-  //   res.status(400).end();
-  //   return;
-  // } else if (200 < apiRes.status) {
-  //   res.status(500).end();
-  //   return;
-  // }
-  // const { branch, formula, valid } = await apiRes.json<SolveApiResult>();
+  const { width: reqWidth, height: reqHeight, formula: reqFormula } = req.query;
+  if (!reqFormula || Array.isArray(reqFormula)) {
+    res.status(400).end();
+    return;
+  }
+  if (reqWidth && (Array.isArray(reqWidth) || parseInt(reqWidth) === NaN)) {
+    res.status(400).end();
+    return;
+  }
+  if (reqHeight && (Array.isArray(reqHeight) || parseInt(reqHeight) === NaN)) {
+    res.status(400).end();
+    return;
+  }
+
+  const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
+  apiUrl.searchParams.set("formula", reqFormula);
+  const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
+  if (apiRes.status === 400) {
+    res.status(400).end();
+    return;
+  } else if (200 < apiRes.status) {
+    res.status(500).end();
+    return;
+  }
+  const { branch, formula, valid } = await apiRes.json<SolveApiResult>();
 
   try {
     const browser = await chromium.puppeteer.launch({
@@ -34,7 +37,11 @@ const handler: NextApiHandler = async (req, res) => {
       args: chromium.args,
       headless: true,
       ignoreDefaultArgs: ["--disable-extensions"],
-      defaultViewport: { ...chromium.defaultViewport },
+      defaultViewport: {
+        ...chromium.defaultViewport,
+        width: reqWidth ? parseInt(reqWidth) : 900,
+        height: reqHeight ? parseInt(reqHeight) : 640,
+      },
     });
     const page = await browser.newPage();
     // const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
