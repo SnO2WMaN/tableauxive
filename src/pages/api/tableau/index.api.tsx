@@ -48,8 +48,7 @@ const handler: NextApiHandler = async (req, res) => {
     });
     const page = await browser.newPage();
     const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
-    await page.goto("https://example.com", { waitUntil: "networkidle0" });
-    // await page.goto;
+    await page.setContent(html, { waitUntil: "networkidle0" });
     const image = await page.screenshot({ type: "png" });
 
     // res.setHeader("Content-Type", "text/html; charset=UTF-8");
