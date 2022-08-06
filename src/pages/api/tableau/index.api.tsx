@@ -1,5 +1,3 @@
-/* eslint-disable eslint-comments/disable-enable-pair */
-/* eslint-disable @next/next/no-head-element */
 import chromium from "chrome-aws-lambda";
 import { NextApiHandler } from "next";
 

@@ -1,3 +1,6 @@
+/* eslint-disable eslint-comments/disable-enable-pair */
+/* eslint-disable @next/next/no-head-element */
+
 import katex from "katex";
 
 import { Branch } from "~/components/Branch";
