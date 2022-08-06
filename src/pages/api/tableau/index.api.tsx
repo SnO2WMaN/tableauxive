@@ -1,52 +1,11 @@
-/* eslint-disable eslint-comments/disable-enable-pair */
-/* eslint-disable @next/next/no-head-element */
-
 import chromium from "chrome-aws-lambda";
-import katex from "katex";
 import ky from "ky";
 import { NextApiHandler } from "next";
 import ReactDOMServer from "react-dom/server";
 
-import { Branch } from "~/components/Branch";
-import { BranchType, PropFormula, SolveApiResult } from "~/types";
-import { formulaToTeX } from "~/utils/formulaToTex";
-import pkgjson from "~~/package.json";
+import { SolveApiResult } from "~/types";
 
-const HtmlTemplate: React.FC<{ formula: PropFormula; valid: boolean; branch: BranchType }> = (
-  { branch, formula, valid: validity },
-) => (
-  <html style={{ height: "100%" }}>
-    <head>
-      <link
-        rel="stylesheet"
-        href={`https://cdn.jsdelivr.net/npm/the-new-css-reset@${pkgjson.dependencies["the-new-css-reset"]}`}
-      />
-      <link
-        rel="stylesheet"
-        href={`https://cdn.jsdelivr.net/npm/katex@${pkgjson.dependencies["katex"]}/dist/katex.min.css`}
-      />
-    </head>
-    <body style={{ padding: "16px 16px", backgroundColor: "white" }}>
-      <p style={{ width: "100%", textAlign: "left" }}>
-        <span
-          dangerouslySetInnerHTML={{ __html: katex.renderToString(formulaToTeX(formula), { displayMode: false }) }}
-        />{" "}
-        is {validity ? <span>valid</span> : <span>invalid</span>}
-        .
-      </p>
-      <div
-        style={{
-          marginBlockStart: "24px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "start",
-        }}
-      >
-        <Branch branch={branch} />
-      </div>
-    </body>
-  </html>
-);
+import { HtmlTemplate } from "./HtmlTemplate";
 
 const handler: NextApiHandler = async (req, res) => {
   const { width: reqWidth, height: reqHeight, formula: reqFormula } = req.query;
@@ -62,9 +21,6 @@ const handler: NextApiHandler = async (req, res) => {
     res.status(400).end();
     return;
   }
-
-  const width = reqWidth ? parseInt(reqWidth) : 900;
-  const height = reqHeight ? parseInt(reqHeight) : 640;
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
   apiUrl.searchParams.set("formula", reqFormula);
@@ -82,7 +38,12 @@ const handler: NextApiHandler = async (req, res) => {
     executablePath: await chromium.executablePath,
     args: chromium.args,
     headless: true,
-    defaultViewport: { width, height },
+    ignoreDefaultArgs: ["--disable-extensions"],
+    defaultViewport: {
+      ...chromium.defaultViewport,
+      width: reqWidth ? parseInt(reqWidth) : 900,
+      height: reqHeight ? parseInt(reqHeight) : 640,
+    },
   });
   const page = await browser.newPage();
   const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
@@ -93,6 +54,7 @@ const handler: NextApiHandler = async (req, res) => {
   // res.send(html);
   // return;
 
+  res.status(200);
   res.setHeader("Content-Type", "image/png");
   res.setHeader("Cache-Control", "max-age=86400, public, stale-while-revalidate");
   res.send(image);
