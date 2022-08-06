@@ -1,10 +1,10 @@
 /* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable @next/next/no-head-element */
 
+import chromium from "chrome-aws-lambda";
 import katex from "katex";
 import ky from "ky";
 import { NextApiHandler } from "next";
-import ReactDOMServer from "react-dom/server";
 
 import { Branch } from "~/components/Branch";
 import { BranchType, PropFormula, SolveApiResult } from "~/types";
@@ -74,26 +74,27 @@ const handler: NextApiHandler = async (req, res) => {
   }
   const { branch, formula, valid } = await apiRes.json<SolveApiResult>();
 
-  // const browser = await chromium.puppeteer.launch({
-  //   executablePath: await chromium.executablePath,
-  //   args: chromium.args,
-  //   headless: true,
-  //   ignoreDefaultArgs: ["--disable-extensions"],
-  //   defaultViewport: { ...chromium.defaultViewport, width, height },
-  // });
-  // const page = await browser.newPage();
-  const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
-  // await page.setContent(html, { waitUntil: "networkidle0" });
-  // const image = await page.screenshot({ type: "png" });
+  const browser = await chromium.puppeteer.launch({
+    executablePath: await chromium.executablePath,
+    args: chromium.args,
+    headless: true,
+    ignoreDefaultArgs: ["--disable-extensions"],
+    defaultViewport: { ...chromium.defaultViewport },
+  });
+  const page = await browser.newPage();
+  // const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
+  await page.goto("https://example.com", { waitUntil: "networkidle0" });
+  // await page.goto;
+  const image = await page.screenshot({ type: "png" });
 
-  res.setHeader("Content-Type", "text/html; charset=UTF-8");
-  res.send(html);
-  return;
-
-  // res.setHeader("Content-Type", "image/png");
-  // res.setHeader("Cache-Control", "max-age=86400, public, stale-while-revalidate");
-  // res.send(image);
+  // res.setHeader("Content-Type", "text/html; charset=UTF-8");
+  // res.send(html);
   // return;
+
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "max-age=86400, public, stale-while-revalidate");
+  res.send(image);
+  return;
 };
 
 export default handler;
