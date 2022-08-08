@@ -8,8 +8,8 @@ import { SolveApiResult } from "~/types";
 import { HtmlTemplate } from "./HtmlTemplate";
 
 const handler: NextApiHandler = async (req, res) => {
-  const { width: reqWidth, height: reqHeight, formula: reqFormula } = req.query;
-  if (!reqFormula || Array.isArray(reqFormula)) {
+  const { width: reqWidth, height: reqHeight, inference: reqInference } = req.query;
+  if (!reqInference || Array.isArray(reqInference)) {
     res.status(400).end();
     return;
   }
@@ -23,7 +23,8 @@ const handler: NextApiHandler = async (req, res) => {
   }
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
-  apiUrl.searchParams.set("formula", reqFormula);
+  apiUrl.searchParams.set("logic", "prop");
+  apiUrl.searchParams.set("inference", reqInference);
   const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
   if (apiRes.status === 400) {
     res.status(400).end();
@@ -32,7 +33,7 @@ const handler: NextApiHandler = async (req, res) => {
     res.status(500).end();
     return;
   }
-  const { branch, formula, valid } = await apiRes.json<SolveApiResult>();
+  const { branch, inference, valid } = await apiRes.json<SolveApiResult>();
 
   const browser = await chromium.puppeteer.launch({
     executablePath: await chromium.executablePath,
@@ -46,7 +47,13 @@ const handler: NextApiHandler = async (req, res) => {
     },
   });
   const page = await browser.newPage();
-  const html = ReactDOMServer.renderToStaticMarkup(<HtmlTemplate branch={branch} formula={formula} valid={valid} />);
+  const html = ReactDOMServer.renderToStaticMarkup(
+    <HtmlTemplate
+      inference={inference}
+      branch={branch}
+      valid={valid}
+    />,
+  );
   await page.setContent(html, { waitUntil: "networkidle0" });
   const image = await page.screenshot({ type: "png" });
 

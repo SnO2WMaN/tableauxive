@@ -4,12 +4,12 @@
 import katex from "katex";
 
 import { Branch } from "~/components/Branch";
-import { BranchType, PropFormula } from "~/types";
-import { formulaToTeX } from "~/utils/formulaToTex";
+import { BranchType, PropInference } from "~/types";
+import { toTexPropInference } from "~/utils/toTeX";
 import pkgjson from "~~/package.json";
 
-export const HtmlTemplate: React.FC<{ formula: PropFormula; valid: boolean; branch: BranchType }> = (
-  { branch, formula, valid: validity },
+export const HtmlTemplate: React.FC<{ inference: PropInference; valid: boolean; branch: BranchType }> = (
+  { branch, inference, valid: validity },
 ) => (
   <html style={{ height: "100%" }}>
     <head>
@@ -25,7 +25,9 @@ export const HtmlTemplate: React.FC<{ formula: PropFormula; valid: boolean; bran
     <body style={{ padding: "16px 16px", backgroundColor: "white" }}>
       <p style={{ width: "100%", textAlign: "left" }}>
         <span
-          dangerouslySetInnerHTML={{ __html: katex.renderToString(formulaToTeX(formula), { displayMode: false }) }}
+          dangerouslySetInnerHTML={{
+            __html: katex.renderToString(toTexPropInference(inference), { displayMode: false }),
+          }}
         />{" "}
         is {validity ? <span>valid</span> : <span>invalid</span>}
         .
