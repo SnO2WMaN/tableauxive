@@ -8,6 +8,10 @@ export type Imp = ["IMP", PropFormula, PropFormula];
 export type Eq = ["EQ", PropFormula, PropFormula];
 
 export type PropFormula = Top | Bot | Prop | Not | And | Or | Imp | Eq;
+export type PropInference = {
+  premise: PropFormula[];
+  consequence: PropFormula;
+};
 
 export type PropsTable = Record<string, { 0?: true; 1?: true }>;
 export type BranchType = {
@@ -18,4 +22,4 @@ export type BranchType = {
   junction: null | [BranchType, BranchType];
 };
 
-export type SolveApiResult = { valid: boolean; branch: BranchType; formula: PropFormula };
+export type SolveApiResult = { valid: boolean; branch: BranchType; inference: PropInference };

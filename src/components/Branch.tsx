@@ -2,7 +2,7 @@ import katex from "katex";
 import React from "react";
 
 import { BranchType } from "~/types";
-import { formulaToTeX } from "~/utils/formulaToTex";
+import { toTexPropFormula } from "~/utils/toTeX";
 
 export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
   return (
@@ -27,7 +27,9 @@ export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
           <li key={i} style={{ display: "flex", alignItems: "center" }}>
             <span
               style={{ flexGrow: 1, textAlign: "center", padding: "0 8px" }}
-              dangerouslySetInnerHTML={{ __html: katex.renderToString(formulaToTeX(formula), { displayMode: false }) }}
+              dangerouslySetInnerHTML={{
+                __html: katex.renderToString(toTexPropFormula(formula), { displayMode: false }),
+              }}
             />
           </li>
         ))}

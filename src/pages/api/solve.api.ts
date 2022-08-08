@@ -2,14 +2,15 @@ import ky from "ky";
 import { NextApiHandler } from "next";
 
 export const handler: NextApiHandler = async (req, res) => {
-  const { formula } = req.query;
-  if (!formula || Array.isArray(formula)) {
+  const { inference } = req.query;
+  if (!inference || Array.isArray(inference)) {
     res.status(400).end();
     return;
   }
 
   const apiUrl = new URL("/solve", process.env.LOGIKSOLVA_ENDPOINT);
-  apiUrl.searchParams.set("formula", formula);
+  apiUrl.searchParams.set("logic", "prop");
+  apiUrl.searchParams.set("inference", inference);
   const apiRes = await ky.get(apiUrl.toString(), { timeout: 30000, throwHttpErrors: false });
   if (200 < apiRes.status) {
     res.status(500).end();
