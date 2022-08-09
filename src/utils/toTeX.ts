@@ -1,4 +1,4 @@
-import { PropFormula, PropInference } from "~/types";
+import { PropFormula, PropInference } from "~/types/prop";
 
 export const toTexPropFormula = (f: PropFormula): string => {
   switch (f[0]) {

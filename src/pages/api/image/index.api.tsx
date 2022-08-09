@@ -3,7 +3,7 @@ import ky from "ky";
 import { NextApiHandler } from "next";
 import ReactDOMServer from "react-dom/server";
 
-import { SolveApiResult } from "~/types";
+import { SolveApiResult } from "~/types/api";
 
 import { HtmlTemplate } from "./HtmlTemplate";
 
@@ -33,7 +33,7 @@ const handler: NextApiHandler = async (req, res) => {
     res.status(500).end();
     return;
   }
-  const { branch, inference, valid } = await apiRes.json<SolveApiResult>();
+  const { tableau: branch, inference, valid } = await apiRes.json<SolveApiResult>();
 
   const browser = await chromium.puppeteer.launch({
     executablePath: await chromium.executablePath,
@@ -50,7 +50,7 @@ const handler: NextApiHandler = async (req, res) => {
   const html = ReactDOMServer.renderToStaticMarkup(
     <HtmlTemplate
       inference={inference}
-      branch={branch}
+      tableau={branch}
       valid={valid}
     />,
   );

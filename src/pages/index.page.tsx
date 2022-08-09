@@ -4,13 +4,14 @@ import ky from "ky";
 import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 
-import { Branch } from "~/components/Branch";
-import { BranchType, PropInference, SolveApiResult } from "~/types";
+import { Tableau } from "~/components/Tableau";
+import { SolveApiResult } from "~/types/api";
+import { PropInference, PropTableau } from "~/types/prop";
 import { toTexPropInference } from "~/utils/toTeX";
 
 export type PageProps =
   | { result: null }
-  | { result: { type: "prop"; inference: PropInference; branch: BranchType; valid: boolean } };
+  | { result: { type: "prop"; inference: PropInference; tableau: PropTableau; valid: boolean } };
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({ query }) => {
   const reqInference = query["inference"];
   if (!reqInference || Array.isArray(reqInference)) {
@@ -21,14 +22,12 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({ query 
   apiUrl.searchParams.set("logic", "prop");
   apiUrl.searchParams.set("inference", reqInference);
 
-  console.log(apiUrl.toString());
-
   const apiRes = await ky.get(apiUrl.toString());
   if (apiRes.status === 400) throw new Error("Invalid formula");
   if (200 < apiRes.status) throw new Error("Something wrong");
 
-  const { inference, branch, valid } = await apiRes.json<SolveApiResult>();
-  return { props: { result: { type: "prop", inference, branch, valid } } };
+  const { inference, tableau, valid } = await apiRes.json<SolveApiResult>();
+  return { props: { result: { type: "prop", inference, tableau, valid } } };
 };
 
 const Page: NextPage<PageProps> = (props) => {
@@ -51,7 +50,7 @@ const Page: NextPage<PageProps> = (props) => {
               .
             </p>
             <div className={css({ marginBlockStart: "24px", display: "flex", justifyContent: "center" })}>
-              <Branch branch={props.result.branch} />
+              <Tableau tableau={props.result.tableau} />
             </div>
           </>
         )}
