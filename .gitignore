@@ -20,6 +20,9 @@ node_modules/
 # log
 .pnpm-debug.log
 
+# tsc
+tsconfig.tsbuildinfo
+
 # Vercel
 .vercel
 
