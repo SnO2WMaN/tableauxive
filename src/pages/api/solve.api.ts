@@ -1,6 +1,8 @@
 import ky from "ky";
 import { NextApiHandler } from "next";
 
+import { SolveApiResult } from "~/types/api";
+
 export const handler: NextApiHandler = async (req, res) => {
   const { inference } = req.query;
   if (!inference || Array.isArray(inference)) {
@@ -17,10 +19,8 @@ export const handler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const json = await apiRes.json();
-  res
-    .setHeader("Content-Type", "application/json")
-    .json(json);
+  const json = await apiRes.json<SolveApiResult>();
+  res.setHeader("Content-Type", "application/json").json(json);
   return;
 };
 

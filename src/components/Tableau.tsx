@@ -1,10 +1,10 @@
 import katex from "katex";
 import React from "react";
 
-import { BranchType } from "~/types";
+import { PropTableau as PropTableauType } from "~/types/prop";
 import { toTexPropFormula } from "~/utils/toTeX";
 
-export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
+export const Tableau: React.FC<{ tableau: PropTableauType }> = ({ tableau: branch }) => {
   return (
     <div
       style={{
@@ -42,8 +42,8 @@ export const Branch: React.FC<{ branch: BranchType }> = ({ branch }) => {
               <line x1="50%" y1="0%" x2="75%" y2="100%" stroke="black" />
             </svg>
           </div>
-          <Branch branch={branch.junction[0]}></Branch>
-          <Branch branch={branch.junction[1]}></Branch>
+          <Tableau tableau={branch.junction[0]}></Tableau>
+          <Tableau tableau={branch.junction[1]}></Tableau>
         </>
       )}
     </div>

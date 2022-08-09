@@ -12,14 +12,4 @@ export type PropInference = {
   premise: PropFormula[];
   consequence: PropFormula;
 };
-
-export type PropsTable = Record<string, { 0?: true; 1?: true }>;
-export type BranchType = {
-  nodes: PropFormula[];
-  stack: PropFormula[];
-  skip: (Or | Imp | Eq)[];
-  props: PropsTable;
-  junction: null | [BranchType, BranchType];
-};
-
-export type SolveApiResult = { valid: boolean; branch: BranchType; inference: PropInference };
+export type PropTableau = { nodes: PropFormula[]; junction: null | [PropTableau, PropTableau] };

@@ -3,13 +3,13 @@
 
 import katex from "katex";
 
-import { Branch } from "~/components/Branch";
-import { BranchType, PropInference } from "~/types";
+import { Tableau } from "~/components/Tableau";
+import { PropInference, PropTableau } from "~/types/prop";
 import { toTexPropInference } from "~/utils/toTeX";
 import pkgjson from "~~/package.json";
 
-export const HtmlTemplate: React.FC<{ inference: PropInference; valid: boolean; branch: BranchType }> = (
-  { branch, inference, valid: validity },
+export const HtmlTemplate: React.FC<{ valid: boolean; tableau: PropTableau; inference: PropInference }> = (
+  { tableau, inference, valid: validity },
 ) => (
   <html style={{ height: "100%" }}>
     <head>
@@ -40,7 +40,7 @@ export const HtmlTemplate: React.FC<{ inference: PropInference; valid: boolean; 
           alignItems: "start",
         }}
       >
-        <Branch branch={branch} />
+        <Tableau tableau={tableau} />
       </div>
     </body>
   </html>
